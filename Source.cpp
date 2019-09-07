@@ -2,15 +2,10 @@
 #include <ctime>
 #include <cstdlib>
 #include <string>
-#include <cctype>
 //#pragma warning(disable : 4996)
 using namespace std;
 
-int daysPerMonth[48] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
-						31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
-						31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
-						31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
+//compiled with g++ -Wall -o pr1 Source.cpp
 
 
 struct Date {
@@ -26,29 +21,39 @@ struct Date {
 	{}
 
 	int day, month, year;
+
+	bool operator==(Date o){
+		return (year == o.year) && (month == o.month) && (day == o.day);
+	}
 };
 
-Date GetBirthdate(Date today);
+int getDayCount(int year, int month);
 
-int CalculateAge(Date today, Date birthDate);
+Date getBirthDate(Date today);
 
-bool CheckBirthday(Date birthDate);
+Date getAge(Date today, Date birthDate);
 
-string CalculateBirthday(Date birthDate);
+bool checkBirthday(Date birthDate);
 
-string MakeLowerCase(string text);
+string calculateBirthday(Date birthDate);
 
-bool MathTest(int age);
+string makeLowerCase(string text);
 
-bool ArtTest(int age);
+bool mathTest(bool older);
 
-int * DetermineFactors();
+bool artTest(bool older);
 
+int * determineFactors();
+
+//main
 int main() {
-	//ophalen huidige tijd
 	int day, month, year;
-	tm s;
-	time_t t;
+	tm s; //een struct dat tijd bijhoudt
+	time_t t; //een variabel dat een tijdstip opslaat
+	bool older; //of de gebruiker minstens 30 jaar oud is
+	bool passedMath;
+
+	//ophalen huidige tijd
 	time(&t);
 	s = *localtime(&t);
 	day = s.tm_mday;
@@ -59,123 +64,149 @@ int main() {
 	
 	srand(t);
 	
+	Date birthDate = getBirthDate(today);
 
-	cout << "Het huidige jaar is " << today.year << endl;
+	if (birthDate == Date(-1, -1, -1))
+		return 1;
 
-	Date userBirthday = GetBirthdate(today);
+	cout << "Uw geboortejaar is " << birthDate.year << endl;
+	cout << "Uw geboortemaand is " << birthDate.month << endl;
+	cout << "Uw geboortedag is " << birthDate.day << endl;
 
-	cout << "Uw geboortejaar is " << userBirthday.year << endl;
-	cout << "Uw geboortemaand is " << userBirthday.month << endl;
-	cout << "Uw geboortedag is " << userBirthday.day << endl;
+	Date age = getAge(today, birthDate);
 
-	int age = CalculateAge(today, userBirthday);
+	if (age == Date(-1, -1, -1))
+		return 1;
 
-	cout << "Uw leeftijd is " << age << " maanden" << endl;
-	cout << "Ofwel " << (age - (age % 12)) / 12 << " jaar en " << age % 12 << " maanden" << endl;
+	cout << "Uw leeftijd is " << age.month + age.year * 12 << " maanden" << endl;
+	cout << "Ofwel " << age.year << " jaar en " << age.month << " maanden" << endl;
 
-	if (!CheckBirthday(userBirthday)) {
+	if(!checkBirthday(birthDate))
+		return 0;
+
+	older = (age.year >= 30);
+	passedMath = mathTest(older);	
+
+	if(passedMath){
+		cout << "Gefeliciteerd!" << endl;
+		cout << (older ? "U " : "Je ") << "mag deelnemen aan een exacte studie!" << endl;
 		return 0;
 	}
-
-	MathTest(age);	
+	
+	cout << "Helaas!" << endl;
+	cout << (older ? "U " : "Je ") << "mag niet deelnemen aan een exacte studie!" << endl;
 
 	return 0;
 }
 
-Date GetBirthdate(Date today) {
+int getDayCount(int year, int month){
+	int daysPerMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+	
+	if(month != 2)
+		return daysPerMonth[month-1];
+	else
+		return daysPerMonth[month-1] + (year % 4 == 0 ? 1 : 0);
+}
+
+//Vraagt aan de gebruiker een geldige geboortedatum in te vullen
+//Gebruikt 'today' om te checken of deze datum niet in de verre toekomst is
+//Returnt een datum object (jaar, maand, dag) met de geboortedatum van de gebruiker
+//Returnt (-1, -1, -1) in het geval van een invalid input
+Date getBirthDate(Date today) {
 
 	string invalidInput = "Deze invoer is ongeldig. Het programma wordt afgesloten.";
-	string invalidAge = "Uw leeftijd is ongeschikt. Het programma wordt afgesloten.";
-
 
 	Date birthDate;
 
 	cout << "Geef uw geboortejaar op: ";
 	cin >> birthDate.year;
 
+	//Check of het jaartal niet in de toekomst is
 	if (cin.fail() or birthDate.year > today.year) {
-		cout << invalidInput;
-		exit(0);
+		cout << invalidInput << endl;
+		return Date(-1, -1, -1);
 	}
-	else if (birthDate.year > (today.year - 10) or birthDate.year < (today.year - 101)) {
-		cout << invalidAge;
-		exit(0);
-	};
 
 	cout << "Geef uw geboortemaand op: ";
 	cin >> birthDate.month;
 
+	//Check of het een geldige maand is
 	if (cin.fail() or birthDate.month < 1 or birthDate.month > 12) {
-		cout << invalidInput;
-		exit(0);
+		cout << invalidInput << endl;
+		return Date(-1, -1, -1);
 	}
-	else if ((birthDate.year == (today.year - 10)) and today.month < birthDate.month) {
-		cout << invalidAge;
-		exit(0);
-	}
-	else if ((birthDate.year == (today.year - 101)) and today.month > birthDate.month) {
-		cout << invalidAge;
-		exit(0);
-	};
 
 	cout << "Geef uw geboortedag op: ";
 	cin >> birthDate.day;
 
-	if (cin.fail() or birthDate.day < 1 or birthDate.day > daysPerMonth[birthDate.month - 1 + (12 * (birthDate.year % 4))]) {
-		cout << invalidInput;
-		exit(0);
+	//Check of het wel een geldige dag is
+	if (cin.fail() or birthDate.day < 1 or birthDate.day > getDayCount(birthDate.year, birthDate.month)){
+		cout << invalidInput << endl;
+		return Date(-1, -1, -1);
 	}
-	else if ((birthDate.year == (today.year - 10)) and today.month == birthDate.month and today.day < birthDate.day) {
-		cout << invalidAge;
-		exit(0);
-	}
-	else if ((birthDate.year == (today.year - 101)) and today.month == birthDate.month and today.day >= birthDate.day) {
-		cout << invalidAge;
-		exit(0);
-	};
-
-	if (birthDate.year == today.year and birthDate.month > today.month) {
-		cout << invalidInput;
-		exit(0);
-	};
-
-	if (birthDate.year == today.year and birthDate.month == today.month and birthDate.day > today.day) {
-		cout << invalidInput;
-		exit(0);
-	};
-
-	if (birthDate.day == today.day) {
-		cout << "Gefeliciteerd met uw vermaandag!" << endl;
-		if (birthDate.month == today.month) {
-			cout << "... en uw verjaardag!" << endl;
-		};
-	};
 
 	return birthDate;
-
 }
 
-int CalculateAge(Date today, Date birthDate) {
+//berekent de leeftijd van de gebruiker
+//doet dit door het verschil te nemen van 'today' en 'birthDate'
+//returnt een Date object waar year en month de leeftijd uitdrukken
+//en als de dag 0 is, is de gebruiker jarig
+//returnt (-1, -1, -1) bij een onacceptabele datum
+Date getAge(Date today, Date birthDate) {
 
-	int age;
+	string invalidInput = "Deze invoer is ongeldig. Het programma wordt afgesloten.";
+	string invalidAge = "Uw leeftijd is ongeschikt. Het programma wordt afgesloten.";
 
-	age = today.month - birthDate.month + 12 * (today.year - birthDate.year);
+	Date age; //jaar, maand, dag object gebruikt om leeftijd aan te duiden
 
-	if (birthDate.day > today.day) {
-		age -= 1;
+	age.year = today.year - birthDate.year;
+	age.month = today.month - birthDate.month;
+	age.day	= today.day - birthDate.day;
+
+	if(age.day < 0){
+		age.month -= 1;
+		//leeftijd in dagen hoeft niet precies
+		//0 = jarig/maandig, niet 0 = overig
+		age.day = 1;
+	}
+	
+	if(age.month < 0){
+		age.year -= 1;
+		age.month += 12;
+	}
+
+	//invalid age:
+	if (age.year < 0){
+		cout << invalidInput << endl;
+		return Date(-1, -1, -1);
+	}
+
+	//too young or too old
+	if (age.year < 10 or age.year > 100) {
+		cout << invalidAge << endl;
+		return Date(-1, -1, -1);
+	}
+
+	if (age.day == 0) {
+		cout << "Gefeliciteerd met uw vermaandag!" << endl;
+		if (age.month == 0) {
+			cout << "... en uw verjaardag!" << endl;
+		};
 	};
 
 	return age;
 }
 
-bool CheckBirthday(Date birthDate) {
+//vraagt aan de gebruiker de weekdag van zijn/haar geboorte 'birthDate'
+//returnt of de gebruiker het juiste antwoord gegeven heeft
+bool checkBirthday(Date birthDate) {
 
 	string answer;
 	string secondSymbol;
 
-	cout << "Voer de eerste letter van de dag waarop u bent geboren in: ";
+	cout << "Voer de eerste (kleine!) letter van de dag waarop u bent geboren in: ";
 	cin >> answer;
-	answer = MakeLowerCase(answer);
 
 	if (answer == "d" or answer == "z") {
 
@@ -185,72 +216,90 @@ bool CheckBirthday(Date birthDate) {
 
 	};
 
-	if (answer == CalculateBirthday(birthDate)) {
-
+	if (answer == calculateBirthday(birthDate)) {
 		cout << "De opgegeven geboortedag is juist." << endl;
 		return true;
 
 	} else {
-		cout << "De opgegeven geboortedag is onjuist. Het programma wordt afgesloten.";
+		cout << "De opgegeven geboortedag is onjuist. Het programma wordt afgesloten." << endl;
 		return false;
 	};
 
 }
 
-string CalculateBirthday(Date birthDate) {
+//berekent de dag van de week op de gegeven datum 'birthdate'
+//returnt met een 1 of 2 letter string de weekdag
+string calculateBirthday(Date birthDate) {
 
 	string weekDays[7] = { "m", "di", "w", "do", "v", "za", "zo" };
 	int numberOfDays = birthDate.day - 1;
-	int differenceYears = birthDate.year - 1901;
+	int differenceYears = birthDate.year - 1900;
 	int differenceMonths = birthDate.month - 1;
 	string birthday;
 
+	//for every month from 1900 till the birthday, sum the daycount
 	for (int i = 0; i < differenceYears * 12 + differenceMonths; i++) {
-		numberOfDays += daysPerMonth[(12 + i)%48];
+		numberOfDays += getDayCount(i/12, (i%12) + 1);
 	};
 
-	birthday = weekDays[(numberOfDays % 7) + 1];
+	cout << numberOfDays << endl;
 
+	birthday = weekDays[(numberOfDays - 1) % 7];
+
+	cout << "birthday = " << birthday << endl;
 
 	return birthday;
-
 }
 
-bool MathTest(int age){
+//geeft de gebruiker een rekentoets
+//de aanspreekwijze hangt ervan af of de gebruiker minstens 30 jaar oud is 'older'
+//returnt of de gebruiker geslaagd is
+bool mathTest(bool older){
 
 		int * factors;
 		int product;
 		int answer;
 		int diff;
-		bool older = (age > 360);
 				
-		factors = DetermineFactors();
+		factors = determineFactors();
 		product = factors[0] * factors[1];
 		
 		if(older){
-			cout << "U krijgt nu een wiskundige oefening om uw vaardigheden te beproeven." << endl;
-		} else {
-			cout << "Laten we even kijken hoeveel breincellen er bij jou nog over zijn!" << endl;
+			cout << "U krijgt nu een wiskundige oefening ";
+			cout << "om uw vaardigheden te beproeven." << endl;
+		}else{
+			cout << "Laten we even kijken hoeveel ";
+			cout << "breincellen er bij jou nog over zijn!" << endl;
 		}
 
 		cout << "Wat is " << factors[0] << " * " << factors[1] << ": ";
-		
 		cin >> answer;
 		
 		diff = abs(answer-product);
 
 		if(product == 0){
-			return (diff == 0);
+			if (diff == 0)
+				return true;
 		} else {
 			double epsilon = (double)diff / (double)product;
-			return (epsilon < 0.1);
+			if (epsilon < 0.1){
+				cout << (older ? "Uw " : "Je ") << "antwoord was goed genoeg!" << endl;				
+				return true;
+			}
 		}
 
-		cout << "Hier hoort het programma nooit te komen?" << endl;
-		return;
+		//als het antwoord fout was, krijgt de gebruiker het juiste antwoord te zien
+		cout << "Het juiste antwoord was: " << product << endl;
+		return false;
 }
 
-int * DetermineFactors(){
+bool artTest(bool older){
+	//TODO
+	return false;
+}
+
+//returnt een pointer naar een array met 2 factoren voor de rekentoets
+int * determineFactors(){
 	
 	static int factors[2];
 	
@@ -258,14 +307,4 @@ int * DetermineFactors(){
 	factors[1] = (rand() % 10 ? rand() % 1000 : 0);
 	
 	return factors;
-}
-
-string MakeLowerCase(string text){
-	
-	for(int i = 0; i<text.size(); i++){
-		text[i] = tolower(text[i]);
-	}
-	
-	return text;
-
 }
