@@ -49,7 +49,7 @@ int * determineFactors();
 int main() {
 	int day, month, year;
 	tm s; //een struct dat tijd bijhoudt
-	time_t t; //een variabel dat een tijdstip opslaat
+	time_t t; //een variabele die een tijdstip opslaat
 	bool older; //of de gebruiker minstens 30 jaar oud is
 	bool passedMath;
 
@@ -59,11 +59,10 @@ int main() {
 	day = s.tm_mday;
 	month = s.tm_mon + 1; // 0 voor januari
 	year = s.tm_year + 1900; // vanaf 1900
+    Date today(day, month, year);
 
-	Date today(day, month, year);
-	
-	srand(t);
-	
+	srand(t); //stel seed vast voor willekeurige getallen
+
 	Date birthDate = getBirthDate(today);
 
 	if (birthDate == Date(-1, -1, -1))
@@ -76,36 +75,31 @@ int main() {
 	Date age = getAge(today, birthDate);
 
 	if (age == Date(-1, -1, -1))
-		return 1;
+		return 0;
 
 	cout << "Uw leeftijd is " << age.month + age.year * 12 << " maanden" << endl;
-	cout << "Ofwel " << age.year << " jaar en " << age.month << " maanden" << endl;
+	cout << "Oftewel " << age.year << " jaar en " << age.month << " maanden" << endl;
 
 	if(!checkBirthday(birthDate))
 		return 0;
 
 	older = (age.year >= 30);
-	passedMath = mathTest(older);	
 
-	if(passedMath){
+	if(mathTest(older)){
 		cout << "Gefeliciteerd!" << endl;
 		cout << (older ? "U " : "Je ") << "mag deelnemen aan een exacte studie!" << endl;
 		return 0;
 	}
-	
+
 	cout << "Helaas!" << endl;
 	cout << (older ? "U " : "Je ") << "mag niet deelnemen aan een exacte studie!" << endl;
 
-	return 0;
-}
+    if(artTest(older)){
+        cout << "Gefeliciteerd!" << endl;
+        cout << (older ? "U " : "Je ") << "mag deelnemen aan een alfa-studie" << endl;
+    }
 
-int getDayCount(int year, int month){
-	int daysPerMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-	
-	if(month != 2)
-		return daysPerMonth[month-1];
-	else
-		return daysPerMonth[month-1] + (year % 4 == 0 ? 1 : 0);
+	return 0;
 }
 
 //Vraagt aan de gebruiker een geldige geboortedatum in te vullen
@@ -170,7 +164,7 @@ Date getAge(Date today, Date birthDate) {
 		//0 = jarig/maandig, niet 0 = overig
 		age.day = 1;
 	}
-	
+
 	if(age.month < 0){
 		age.year -= 1;
 		age.month += 12;
@@ -192,8 +186,8 @@ Date getAge(Date today, Date birthDate) {
 		cout << "Gefeliciteerd met uw vermaandag!" << endl;
 		if (age.month == 0) {
 			cout << "... en uw verjaardag!" << endl;
-		};
-	};
+		}
+	}
 
 	return age;
 }
@@ -214,26 +208,37 @@ bool checkBirthday(Date birthDate) {
 		cin >> secondSymbol;
 		answer += secondSymbol;
 
-	};
+	}
 
 	if (answer == calculateBirthday(birthDate)) {
 		cout << "De opgegeven geboortedag is juist." << endl;
 		return true;
 
 	} else {
-		cout << "De opgegeven geboortedag is onjuist. Het programma wordt afgesloten." << endl;
+		cout << "De opgegeven geboortedag is onjuist." << endl;
+        cout << "Het programma wordt afgesloten.";
 		return false;
-	};
+	}
 
+}
+
+int getDayCount(int year, int month){
+	int daysPerMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+	if(month == 2){
+        return daysPerMonth[month-1] + ((year+1) % 4 == 0 ? 1 : 0);
+    } else {
+		return daysPerMonth[month-1];
+    }
 }
 
 //berekent de dag van de week op de gegeven datum 'birthdate'
 //returnt met een 1 of 2 letter string de weekdag
 string calculateBirthday(Date birthDate) {
 
-	string weekDays[7] = { "m", "di", "w", "do", "v", "za", "zo" };
+	string weekDays[7] = { "di", "w", "do", "v", "za", "zo", "m" };
 	int numberOfDays = birthDate.day - 1;
-	int differenceYears = birthDate.year - 1900;
+	int differenceYears = birthDate.year - 1901;
 	int differenceMonths = birthDate.month - 1;
 	string birthday;
 
@@ -242,11 +247,11 @@ string calculateBirthday(Date birthDate) {
 		numberOfDays += getDayCount(i/12, (i%12) + 1);
 	};
 
-	cout << numberOfDays << endl;
+	//cout << numberOfDays << endl;
 
-	birthday = weekDays[(numberOfDays - 1) % 7];
+	birthday = weekDays[numberOfDays % 7];
 
-	cout << "birthday = " << birthday << endl;
+	//cout << "birthday = " << birthday << endl;
 
 	return birthday;
 }
@@ -256,55 +261,58 @@ string calculateBirthday(Date birthDate) {
 //returnt of de gebruiker geslaagd is
 bool mathTest(bool older){
 
-		int * factors;
-		int product;
-		int answer;
-		int diff;
-				
-		factors = determineFactors();
-		product = factors[0] * factors[1];
-		
-		if(older){
-			cout << "U krijgt nu een wiskundige oefening ";
-			cout << "om uw vaardigheden te beproeven." << endl;
-		}else{
-			cout << "Laten we even kijken hoeveel ";
-			cout << "breincellen er bij jou nog over zijn!" << endl;
+	int * factors;
+	int product;
+	int answer;
+	int diff;
+
+	factors = determineFactors();
+	product = factors[0] * factors[1];
+
+	if (older) {
+		cout << "U krijgt nu een wiskundige oefening ";
+		cout << "om uw vaardigheden te beproeven." << endl;
+	} else {
+		cout << "Laten we even kijken hoeveel ";
+		cout << "breincellen er bij jou nog over zijn!" << endl;
+	}
+
+	cout << "Wat is " << factors[0] << " * " << factors[1] << ": ";
+	cin >> answer;
+
+	diff = abs(answer-product);
+
+	if(product == 0){
+		if (diff == 0)
+			return true;
+	} else {
+		double epsilon = (double)diff / (double)product;
+		if (epsilon < 0.1){
+			cout << (older ? "Uw " : "Je ") << "antwoord was goed genoeg!" << endl;
+			return true;
 		}
+	}
 
-		cout << "Wat is " << factors[0] << " * " << factors[1] << ": ";
-		cin >> answer;
-		
-		diff = abs(answer-product);
-
-		if(product == 0){
-			if (diff == 0)
-				return true;
-		} else {
-			double epsilon = (double)diff / (double)product;
-			if (epsilon < 0.1){
-				cout << (older ? "Uw " : "Je ") << "antwoord was goed genoeg!" << endl;				
-				return true;
-			}
-		}
-
-		//als het antwoord fout was, krijgt de gebruiker het juiste antwoord te zien
-		cout << "Het juiste antwoord was: " << product << endl;
-		return false;
+	//als het antwoord fout was, krijgt de gebruiker het juiste antwoord te zien
+	cout << "Onjuist. Het juiste antwoord is: " << product << endl;
+	return false;
 }
 
 bool artTest(bool older){
 	//TODO
+
+
+
 	return false;
 }
 
 //returnt een pointer naar een array met 2 factoren voor de rekentoets
 int * determineFactors(){
-	
+
 	static int factors[2];
-	
-	factors[0] = rand() % 1000;
-	factors[1] = (rand() % 10 ? rand() % 1000 : 0);
-	
+
+    factors[0] = (rand() % 10 ? rand() % 1000 : 0);
+	factors[1] = rand() % 1000;
+
 	return factors;
 }
