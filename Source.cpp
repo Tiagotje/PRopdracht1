@@ -7,7 +7,16 @@ using namespace std;
 
 //compiled with g++ -Wall -o pr1 Source.cpp
 
+/*
+TODO:
+1. Terugzetten checken geschiktheid leeftijd tijdens het opvragen
+2. De literatuur/kunst test frame maken. Daadwerkelijke vragen kunnen later komen
+3. Schrijven verslag: http://liacs.leidenuniv.nl/~kosterswa/pm/pmwc3.php
+4. Functie voor infoblokje
+5. Commentaar en commentaarblok aan het begin van document
+6.
 
+*/
 struct Date {
 	Date(int iDay, int iMonth, int iYear) :
 		day(iDay),
@@ -93,6 +102,7 @@ int main() {
 
 	cout << "Helaas!" << endl;
 	cout << (older ? "U " : "Je ") << "mag niet deelnemen aan een exacte studie!" << endl;
+	cout << endl;
 
     if(artTest(older)){
         cout << "Gefeliciteerd!" << endl;
@@ -301,6 +311,35 @@ bool mathTest(bool older){
 bool artTest(bool older){
 	//TODO
 
+	char answer;
+
+
+	if (older) {
+		cout << "U krijgt nu een meerkeuzevraag ";
+		cout << "over kunst of literatuur." << endl;
+		cout << "Wat is de echte naam van de schrijver die schreef onder het ";
+		cout << "pseudoniem Multatuli?" << endl;
+
+		cout << "A. M. Havelaar" << endl << "B. E. Douwes Dekker" << endl;
+		cout << "C. J. Schmidt" << endl << "D. K. van Steijn" << endl;
+	} else {
+		cout << "Misschien dat deze meerkeuzevraag ";
+		cout << "over kunst/literatuur je beter ligt!" << endl;
+		cout << "Hoe heette het leidsche kunsttijdschrift waar Piet Mondriaan ";
+		cout << "een belangrijke rol in heeft gespeeld?" << endl;
+
+		cout << "A. De vorm" << endl << "B. De Stijl" << endl;
+		cout << "C. De Kunst" << endl << "D. Leidsche Schoonheid" << endl;
+	}
+
+	cin >> answer;
+
+	if (answer == 'B' or answer == 'b'){
+		cout << "Dat is het juiste antwoord!" << endl;
+		return true;
+	} else {
+		cout << "Dit antwoord is onjuist";
+	}
 
 
 	return false;
