@@ -10,7 +10,6 @@ using namespace std;
 /*
 TODO:
 1. Terugzetten checken geschiktheid leeftijd tijdens het opvragen
-2. De literatuur/kunst test frame maken. Daadwerkelijke vragen kunnen later komen
 3. Schrijven verslag: http://liacs.leidenuniv.nl/~kosterswa/pm/pmwc3.php
 4. Functie voor infoblokje
 5. Commentaar en commentaarblok aan het begin van document
@@ -36,6 +35,21 @@ struct Date {
 	}
 };
 
+struct Student {
+	Student(string iName, int iNumber, int iStartYear, string iStudy) :
+		name(iName),
+		number(iNumber),
+		startYear(iStartYear),
+		study(iStudy)
+	{}
+
+	string name;
+	int number;
+	int startYear;
+	string study;
+
+};
+
 int getDayCount(int year, int month);
 
 Date getBirthDate(Date today);
@@ -54,13 +68,14 @@ bool artTest(bool older);
 
 int * determineFactors();
 
+void infoBlock();
+
 //main
 int main() {
 	int day, month, year;
 	tm s; //een struct dat tijd bijhoudt
 	time_t t; //een variabele die een tijdstip opslaat
 	bool older; //of de gebruiker minstens 30 jaar oud is
-	bool passedMath;
 
 	//ophalen huidige tijd
 	time(&t);
@@ -71,6 +86,8 @@ int main() {
     Date today(day, month, year);
 
 	srand(t); //stel seed vast voor willekeurige getallen
+
+	infoBlock();
 
 	Date birthDate = getBirthDate(today);
 
@@ -104,12 +121,28 @@ int main() {
 	cout << (older ? "U " : "Je ") << "mag niet deelnemen aan een exacte studie!" << endl;
 	cout << endl;
 
-    if(artTest(older)){
-        cout << "Gefeliciteerd!" << endl;
-        cout << (older ? "U " : "Je ") << "mag deelnemen aan een alfa-studie" << endl;
-    }
+  if(artTest(older)){
+      cout << "Gefeliciteerd!" << endl;
+      cout << (older ? "U " : "Je ") << "mag deelnemen aan een alfa-studie" << endl;
+  } else {
+			cout << "Helaas!" << endl;
+			cout << (older ? "U " : "Je ") << "mag helaas ook niet deelnemen ";
+			cout << "aan een alfa-studie." << endl;
+	}
+
+	cout << "Het programma wordt nu afgesloten..." << endl;
 
 	return 0;
+}
+
+void infoBlock(){
+
+	Student creator1("Matt van den Nieuwenhuijzen", 2042096, 2017, "Natuurkunde");
+
+	cout << creator1.name << endl;
+	cout << creator1.number << endl;
+
+	return;
 }
 
 //Vraagt aan de gebruiker een geldige geboortedatum in te vullen
@@ -226,7 +259,7 @@ bool checkBirthday(Date birthDate) {
 
 	} else {
 		cout << "De opgegeven geboortedag is onjuist." << endl;
-        cout << "Het programma wordt afgesloten.";
+        cout << "Het programma wordt afgesloten." << endl;
 		return false;
 	}
 
@@ -338,7 +371,7 @@ bool artTest(bool older){
 		cout << "Dat is het juiste antwoord!" << endl;
 		return true;
 	} else {
-		cout << "Dit antwoord is onjuist";
+		cout << (older ? "Uw" : "Je") << " antwoord is onjuist." << endl;
 	}
 
 
