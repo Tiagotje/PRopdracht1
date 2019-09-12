@@ -2,30 +2,39 @@
 #include <ctime>
 #include <cstdlib>
 #include <string>
-//#pragma warning(disable : 4996)
+
 using namespace std;
 
-//compiled with g++ -Wall -o pr1 Source.cpp
+// Programmeermethoden, opdracht 1
+// Source.cpp
+// Matt van den Nieuwenhuijzen en Tiago Scholten
+// compiled with g++ -Wall -o pr1 Source.cpp on Linux
+// programmed in gedit on Linux
+
+// Het programma doet het volgende:
+// - Het vraagt de gebruiker om zijn/haar leeftijd
+// - Kijkt of deze niet te jong/oud is voor uni
+// - Laat de gebruiker de weekdag van zijn/haar geboorte raden als "fraudeprotectie"
+// - Geeft een productsom als test voor een exacte studie
+// - Als correct beantwoord mag de gebruiker deelnemen aan een exacte studie
+// - Als de vraag fout beantwoord is, gaat het programma door met een literatuur vraag
+// - Als correct beantwoord mag de gebruiker deelnemen aan een alpha studie
+// - Als fout beantwoord mag de gebruiker niet naar universiteit.
+
 
 /*
 TODO:
-1. Terugzetten checken geschiktheid leeftijd tijdens het opvragen
 3. Schrijven verslag: http://liacs.leidenuniv.nl/~kosterswa/pm/pmwc3.php
-4. Functie voor infoblokje
-5. Commentaar en commentaarblok aan het begin van document
-6.
-
 */
+
+
 struct Date {
 	Date(int iDay, int iMonth, int iYear) :
-		day(iDay),
-		month(iMonth),
-		year(iYear)
+		day(iDay), month(iMonth), year(iYear)
 	{}
+
 	Date() :
-		day(0),
-		month(0),
-		year(0)
+		day(0), month(0), year(0)
 	{}
 
 	int day, month, year;
@@ -33,21 +42,6 @@ struct Date {
 	bool operator==(Date o){
 		return (year == o.year) && (month == o.month) && (day == o.day);
 	}
-};
-
-struct Student {
-	Student(string iName, int iNumber, int iStartYear, string iStudy) :
-		name(iName),
-		number(iNumber),
-		startYear(iStartYear),
-		study(iStudy)
-	{}
-
-	string name;
-	int number;
-	int startYear;
-	string study;
-
 };
 
 int getDayCount(int year, int month);
@@ -83,7 +77,7 @@ int main() {
 	day = s.tm_mday;
 	month = s.tm_mon + 1; // 0 voor januari
 	year = s.tm_year + 1900; // vanaf 1900
-    Date today(day, month, year);
+	Date today(day, month, year);
 
 	srand(t); //stel seed vast voor willekeurige getallen
 
@@ -121,13 +115,13 @@ int main() {
 	cout << (older ? "U " : "Je ") << "mag niet deelnemen aan een exacte studie!" << endl;
 	cout << endl;
 
-  if(artTest(older)){
-      cout << "Gefeliciteerd!" << endl;
-      cout << (older ? "U " : "Je ") << "mag deelnemen aan een alfa-studie" << endl;
-  } else {
-			cout << "Helaas!" << endl;
-			cout << (older ? "U " : "Je ") << "mag helaas ook niet deelnemen ";
-			cout << "aan een alfa-studie." << endl;
+	if(artTest(older)){
+		cout << "Gefeliciteerd!" << endl;
+		cout << (older ? "U " : "Je ") << "mag deelnemen aan een alfa-studie" << endl;
+	} else {
+		cout << "Helaas!" << endl;
+		cout << (older ? "U " : "Je ") << "mag helaas ook niet deelnemen ";
+		cout << "aan een alfa-studie." << endl;
 	}
 
 	cout << "Het programma wordt nu afgesloten..." << endl;
@@ -137,10 +131,20 @@ int main() {
 
 void infoBlock(){
 
-	Student creator1("Matt van den Nieuwenhuijzen", 2042096, 2017, "Natuurkunde");
+	//creator1 = "Matt van den Nieuwenhuizen, s2042096, 2017, Natuurkunde
+	//creator2 = "Tiago Scholten", s2430479, 2019, Natuurkunde, Wiskunde, Taalkunde
 
-	cout << creator1.name << endl;
-	cout << creator1.number << endl;
+	cout << "================================" << endl;
+	cout << "Welkom bij onze uitwerking van opdracht 1!" << endl;
+	cout << "Geschreven door: " << endl;
+	cout << "Matt van den Nieuwenhuijzen &" << endl;
+	cout << "Tiago Scholten" << endl;
+	cout << "================================" << endl << endl;
+
+	cout << "Welkom bij de toelatingstoets van de Universiteit Leiden!" << endl;
+	cout << "Wij zouden eerst uw leeftijd willen aub." << endl;
+ 	
+
 
 	return;
 }
@@ -151,16 +155,17 @@ void infoBlock(){
 //Returnt (-1, -1, -1) in het geval van een invalid input
 Date getBirthDate(Date today) {
 
-	string invalidInput = "Deze invoer is ongeldig. Het programma wordt afgesloten.";
+	string invalidAge = "U moet minstens 10 jaar en maximaal 100 jaar zijn.";
+	string invalidInput = "Deze is kan niet correct geprocessed worden, probeer het nogmaals.";
 
 	Date birthDate;
 
 	cout << "Geef uw geboortejaar op: ";
 	cin >> birthDate.year;
 
-	//Check of het jaartal niet in de toekomst is
-	if (cin.fail() or birthDate.year > today.year) {
-		cout << invalidInput << endl;
+	//Check of het jaartal wel minstens 10 jaar geleden is
+	if (cin.fail() or birthDate.year > (today.year - 10) or birthDate.year < (today.year - 101)) {
+		cout << invalidAge << endl;
 		return Date(-1, -1, -1);
 	}
 
@@ -170,6 +175,18 @@ Date getBirthDate(Date today) {
 	//Check of het een geldige maand is
 	if (cin.fail() or birthDate.month < 1 or birthDate.month > 12) {
 		cout << invalidInput << endl;
+		return Date(-1, -1, -1);
+	}
+
+	//Check of niet te jong op maand
+	if (birthDate.year == (today.year - 10) and birthDate.month > today.month){
+		cout << "Je bent te jong om naar uni te gaan!" << endl;
+		return Date(-1, -1, -1);
+	}
+
+	//Check of niet te oud op maand
+	if (birthDate.year == (today.year - 100) and birthDate.month < today.month){
+		cout << "U bent te oud om naar de universiteit te mogen gaan!" << endl;
 		return Date(-1, -1, -1);
 	}
 
@@ -242,6 +259,8 @@ bool checkBirthday(Date birthDate) {
 	string answer;
 	string secondSymbol;
 
+	cout << "Om te kijken of u wel uw echte leeftijd heeft ingevuld, " << endl;
+	cout << "gaan we u testen." << endl;
 	cout << "Voer de eerste (kleine!) letter van de dag waarop u bent geboren in: ";
 	cin >> answer;
 
@@ -262,9 +281,9 @@ bool checkBirthday(Date birthDate) {
         cout << "Het programma wordt afgesloten." << endl;
 		return false;
 	}
-
 }
 
+//Geeft voor het jaartal 'year' de hoeveelheid dagen die 'month' heeft.
 int getDayCount(int year, int month){
 	int daysPerMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
@@ -308,6 +327,7 @@ bool mathTest(bool older){
 	int product;
 	int answer;
 	int diff;
+	const double EPSILON = 0.1;
 
 	factors = determineFactors();
 	product = factors[0] * factors[1];
@@ -329,9 +349,12 @@ bool mathTest(bool older){
 		if (diff == 0)
 			return true;
 	} else {
-		double epsilon = (double)diff / (double)product;
-		if (epsilon < 0.1){
+		//berekent percentuele verschil van ingevuld antwoord en het juiste
+		//kijk het of het lager is dan de maxwaarde (EPSILON)
+		double reldiff = (double)diff / (double)product;
+		if (reldiff < EPSILON){
 			cout << (older ? "Uw " : "Je ") << "antwoord was goed genoeg!" << endl;
+			cout << "Het exacte antwoord was " << product << endl;
 			return true;
 		}
 	}
@@ -341,11 +364,10 @@ bool mathTest(bool older){
 	return false;
 }
 
+//Geeft een literatuurvraag aan de gebruiker
+//De vraag hangt ervanaf of de gebruiker ouder is dan 30 'older'
 bool artTest(bool older){
-	//TODO
-
 	char answer;
-
 
 	if (older) {
 		cout << "U krijgt nu een meerkeuzevraag ";
@@ -372,8 +394,9 @@ bool artTest(bool older){
 		return true;
 	} else {
 		cout << (older ? "Uw" : "Je") << " antwoord is onjuist." << endl;
+		cout << "Het juiste antwoord was B. ";
+		cout << (older ? "E Douwes Dekker." : "De Stijl.") << endl;
 	}
-
 
 	return false;
 }
@@ -383,7 +406,7 @@ int * determineFactors(){
 
 	static int factors[2];
 
-    factors[0] = (rand() % 10 ? rand() % 1000 : 0);
+	factors[0] = (rand() % 10 ? rand() % 1000 : 0);
 	factors[1] = rand() % 1000;
 
 	return factors;
