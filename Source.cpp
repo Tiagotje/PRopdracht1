@@ -5,6 +5,7 @@
 
 using namespace std;
 
+// 14-09-2019
 // Programmeermethoden, opdracht 1
 // Source.cpp
 // Matt van den Nieuwenhuijzen en Tiago Scholten
@@ -17,9 +18,9 @@ using namespace std;
 // - Laat de gebruiker de weekdag van zijn/haar geboorte raden als "fraudeprotectie"
 // - Geeft een productsom als test voor een exacte studie
 // - Als correct beantwoord mag de gebruiker deelnemen aan een exacte studie
-// - Als de vraag fout beantwoord is, gaat het programma door met een literatuur vraag
-// - Als correct beantwoord mag de gebruiker deelnemen aan een alpha studie
-// - Als fout beantwoord mag de gebruiker niet naar universiteit.
+// - Als het antwoord fout is, gaat het programma door met een literatuur vraag
+// - Wanneer correct beantwoord mag de gebruiker deelnemen aan een alfastudie
+// - Wanneer fout beantwoord mag de gebruiker niet naar universiteit
 
 
 /*
@@ -27,7 +28,7 @@ TODO:
 3. Schrijven verslag: http://liacs.leidenuniv.nl/~kosterswa/pm/pmwc3.php
 */
 
-
+//struct die de dag, maand en jaar van een datum opslaat
 struct Date {
 	Date(int iDay, int iMonth, int iYear) :
 		day(iDay), month(iMonth), year(iYear)
@@ -44,24 +45,17 @@ struct Date {
 	}
 };
 
+//declaratie van de functies die gebruikt worden
+//zie onder main uitgebreider commentaar per functie
 int getDayCount(int year, int month);
-
 Date getBirthDate(Date today);
-
 Date getAge(Date today, Date birthDate);
-
 bool checkBirthday(Date birthDate);
-
 string calculateBirthday(Date birthDate);
-
 string makeLowerCase(string text);
-
 bool mathTest(bool older);
-
 bool artTest(bool older);
-
 int * determineFactors();
-
 void infoBlock();
 
 //main
@@ -85,6 +79,7 @@ int main() {
 
 	Date birthDate = getBirthDate(today);
 
+	//De geboortedatum is afgekeurd
 	if (birthDate == Date(-1, -1, -1))
 		return 1;
 
@@ -98,7 +93,8 @@ int main() {
 		return 0;
 
 	cout << "Uw leeftijd is " << age.month + age.year * 12 << " maanden" << endl;
-	cout << "Oftewel " << age.year << " jaar en " << age.month << " maanden" << endl;
+	cout << "Oftewel " << age.year << " jaar en "
+	 		 << age.month << " maanden" << endl;
 
 	if(!checkBirthday(birthDate))
 		return 0;
@@ -107,17 +103,20 @@ int main() {
 
 	if(mathTest(older)){
 		cout << "Gefeliciteerd!" << endl;
-		cout << (older ? "U " : "Je ") << "mag deelnemen aan een exacte studie!" << endl;
+		cout << (older ? "U " : "Je ") << "mag deelnemen aan een exacte studie!";
+		cout << endl;
 		return 0;
 	}
 
 	cout << "Helaas!" << endl;
-	cout << (older ? "U " : "Je ") << "mag niet deelnemen aan een exacte studie!" << endl;
+	cout << (older ? "U " : "Je ") << "mag niet deelnemen aan een exacte studie!";
+	cout << endl;
 	cout << endl;
 
 	if(artTest(older)){
 		cout << "Gefeliciteerd!" << endl;
-		cout << (older ? "U " : "Je ") << "mag deelnemen aan een alfa-studie" << endl;
+		cout << (older ? "U " : "Je ") << "mag deelnemen aan een alfa-studie"
+				 << endl;
 	} else {
 		cout << "Helaas!" << endl;
 		cout << (older ? "U " : "Je ") << "mag helaas ook niet deelnemen ";
@@ -131,20 +130,23 @@ int main() {
 
 void infoBlock(){
 
-	//creator1 = "Matt van den Nieuwenhuizen, s2042096, 2017, Natuurkunde
-	//creator2 = "Tiago Scholten", s2430479, 2019, Natuurkunde, Wiskunde, Taalkunde
-
 	cout << "================================" << endl;
 	cout << "Welkom bij onze uitwerking van opdracht 1!" << endl;
 	cout << "Geschreven door: " << endl;
-	cout << "Matt van den Nieuwenhuijzen &" << endl;
+	cout << "Matt van den Nieuwenhuijzen" << endl;
+	cout << "Aankomstjaar: 2017" << endl;
+	cout << "Studierichting: Natuurkunde" << endl;
+	cout << "Studentnummer: S2042096" << endl;
+	cout << "&" << endl;
 	cout << "Tiago Scholten" << endl;
+	cout << "Aankomstjaar: 2019" << endl;
+	cout << "Studierichting: Natuurkunde/Wiskunde/Taakunde" << endl;
+	cout << "Studentnummer: S2430479" << endl;
 	cout << "================================" << endl << endl;
 
 	cout << "Welkom bij de toelatingstoets van de Universiteit Leiden!" << endl;
-	cout << "Wij zouden eerst uw leeftijd willen aub." << endl;
- 	
-
+	cout << "Middels deze test wordt gekeken of uw leeftijd geschikt is en" << endl;
+	cout << " of u de vaardigheden heeft om deel te nemen aan een studie." << endl;
 
 	return;
 }
@@ -155,8 +157,9 @@ void infoBlock(){
 //Returnt (-1, -1, -1) in het geval van een invalid input
 Date getBirthDate(Date today) {
 
-	string invalidAge = "U moet minstens 10 jaar en maximaal 100 jaar zijn.";
-	string invalidInput = "Deze is kan niet correct geprocessed worden, probeer het nogmaals.";
+	string invalidAge = "Uw leeftijd is ongeschikt.";
+	string invalidInput = "Deze invoer is ongeldig.";
+	string quitProgram = " Het programma wordt afgesloten.";
 
 	Date birthDate;
 
@@ -164,8 +167,9 @@ Date getBirthDate(Date today) {
 	cin >> birthDate.year;
 
 	//Check of het jaartal wel minstens 10 jaar geleden is
-	if (cin.fail() or birthDate.year > (today.year - 10) or birthDate.year < (today.year - 101)) {
-		cout << invalidAge << endl;
+	if (cin.fail() or birthDate.year > (today.year - 10)
+			or birthDate.year < (today.year - 101)) {
+		cout << invalidAge << quitProgram << endl;
 		return Date(-1, -1, -1);
 	}
 
@@ -174,19 +178,19 @@ Date getBirthDate(Date today) {
 
 	//Check of het een geldige maand is
 	if (cin.fail() or birthDate.month < 1 or birthDate.month > 12) {
-		cout << invalidInput << endl;
+		cout << invalidInput << quitProgram << endl;
 		return Date(-1, -1, -1);
 	}
 
 	//Check of niet te jong op maand
 	if (birthDate.year == (today.year - 10) and birthDate.month > today.month){
-		cout << "Je bent te jong om naar uni te gaan!" << endl;
+		cout << invalidAge << quitProgram << endl;
 		return Date(-1, -1, -1);
 	}
 
 	//Check of niet te oud op maand
 	if (birthDate.year == (today.year - 100) and birthDate.month < today.month){
-		cout << "U bent te oud om naar de universiteit te mogen gaan!" << endl;
+		cout << invalidAge << quitProgram << endl;
 		return Date(-1, -1, -1);
 	}
 
@@ -194,8 +198,9 @@ Date getBirthDate(Date today) {
 	cin >> birthDate.day;
 
 	//Check of het wel een geldige dag is
-	if (cin.fail() or birthDate.day < 1 or birthDate.day > getDayCount(birthDate.year, birthDate.month)){
-		cout << invalidInput << endl;
+	if (cin.fail() or birthDate.day < 1
+			or birthDate.day > getDayCount(birthDate.year, birthDate.month)){
+		cout << invalidInput << quitProgram << endl;
 		return Date(-1, -1, -1);
 	}
 
@@ -209,8 +214,9 @@ Date getBirthDate(Date today) {
 //returnt (-1, -1, -1) bij een onacceptabele datum
 Date getAge(Date today, Date birthDate) {
 
-	string invalidInput = "Deze invoer is ongeldig. Het programma wordt afgesloten.";
-	string invalidAge = "Uw leeftijd is ongeschikt. Het programma wordt afgesloten.";
+	string invalidInput = "Deze invoer is ongeldig.";
+	string invalidAge = "Uw leeftijd is ongeschikt.";
+	string quitProgram = "Het programma wordt afgesloten.";
 
 	Date age; //jaar, maand, dag object gebruikt om leeftijd aan te duiden
 
@@ -232,13 +238,13 @@ Date getAge(Date today, Date birthDate) {
 
 	//invalid age:
 	if (age.year < 0){
-		cout << invalidInput << endl;
+		cout << invalidInput << quitProgram << endl;
 		return Date(-1, -1, -1);
 	}
 
 	//too young or too old
 	if (age.year < 10 or age.year > 100) {
-		cout << invalidAge << endl;
+		cout << invalidAge << quitProgram << endl;
 		return Date(-1, -1, -1);
 	}
 
@@ -304,16 +310,12 @@ string calculateBirthday(Date birthDate) {
 	int differenceMonths = birthDate.month - 1;
 	string birthday;
 
-	//for every month from 1900 till the birthday, sum the daycount
+	//voor elke maand vanaf 1900 tot de geboortemaand, sommeer het aantal dagen
 	for (int i = 0; i < differenceYears * 12 + differenceMonths; i++) {
 		numberOfDays += getDayCount(i/12, (i%12) + 1);
 	};
 
-	//cout << numberOfDays << endl;
-
 	birthday = weekDays[numberOfDays % 7];
-
-	//cout << "birthday = " << birthday << endl;
 
 	return birthday;
 }
@@ -367,6 +369,7 @@ bool mathTest(bool older){
 //Geeft een literatuurvraag aan de gebruiker
 //De vraag hangt ervanaf of de gebruiker ouder is dan 30 'older'
 bool artTest(bool older){
+
 	char answer;
 
 	if (older) {
@@ -395,7 +398,7 @@ bool artTest(bool older){
 	} else {
 		cout << (older ? "Uw" : "Je") << " antwoord is onjuist." << endl;
 		cout << "Het juiste antwoord was B. ";
-		cout << (older ? "E Douwes Dekker." : "De Stijl.") << endl;
+		cout << (older ? "E. Douwes Dekker." : "De Stijl.") << endl;
 	}
 
 	return false;
