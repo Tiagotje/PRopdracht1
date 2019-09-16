@@ -23,11 +23,6 @@ using namespace std;
 // - Wanneer fout beantwoord mag de gebruiker niet naar universiteit
 
 
-/*
-TODO:
-3. Schrijven verslag: http://liacs.leidenuniv.nl/~kosterswa/pm/pmwc3.php
-*/
-
 //struct die de dag, maand en jaar van een datum opslaat
 struct Date {
 	Date(int iDay, int iMonth, int iYear) :
