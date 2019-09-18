@@ -1,26 +1,28 @@
+/*
+14-09-2019
+Programmeermethoden, opdracht 1
+Source.cpp
+Created by Matt van den Nieuwenhuijzen en Tiago Scholten
+compiled with g++ -Wall -o pr1 NHuijzenScholten.cpp on Linux
+programmed in gedit on Linux
+
+Het programma doet het volgende:
+- Het vraagt de gebruiker om zijn/haar leeftijd
+- Kijkt of deze niet te jong/oud is voor uni
+- Laat de gebruiker de weekdag van zijn/haar geboorte raden als "fraudeprotectie"
+- Geeft een productsom als test voor een exacte studie
+- Als correct beantwoord mag de gebruiker deelnemen aan een exacte studie
+- Als het antwoord fout is, gaat het programma door met een literatuur vraag
+- Wanneer correct beantwoord mag de gebruiker deelnemen aan een alfastudie
+- Wanneer fout beantwoord mag de gebruiker niet naar universiteit
+*/
+
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
 #include <string>
 
 using namespace std;
-
-// 14-09-2019
-// Programmeermethoden, opdracht 1
-// Source.cpp
-// Matt van den Nieuwenhuijzen en Tiago Scholten
-// compiled with g++ -Wall -o pr1 Source.cpp on Linux
-// programmed in gedit on Linux
-
-// Het programma doet het volgende:
-// - Het vraagt de gebruiker om zijn/haar leeftijd
-// - Kijkt of deze niet te jong/oud is voor uni
-// - Laat de gebruiker de weekdag van zijn/haar geboorte raden als "fraudeprotectie"
-// - Geeft een productsom als test voor een exacte studie
-// - Als correct beantwoord mag de gebruiker deelnemen aan een exacte studie
-// - Als het antwoord fout is, gaat het programma door met een literatuur vraag
-// - Wanneer correct beantwoord mag de gebruiker deelnemen aan een alfastudie
-// - Wanneer fout beantwoord mag de gebruiker niet naar universiteit
 
 
 //struct die de dag, maand en jaar van een datum opslaat
@@ -78,9 +80,7 @@ int main() {
 	if (birthDate == Date(-1, -1, -1))
 		return 1;
 
-	cout << "Uw geboortejaar is " << birthDate.year << endl;
-	cout << "Uw geboortemaand is " << birthDate.month << endl;
-	cout << "Uw geboortedag is " << birthDate.day << endl;
+	cout << endl << endl;
 
 	Date age = getAge(today, birthDate);
 
@@ -89,7 +89,7 @@ int main() {
 
 	cout << "Uw leeftijd is " << age.month + age.year * 12 << " maanden" << endl;
 	cout << "Oftewel " << age.year << " jaar en "
-	 		 << age.month << " maanden" << endl;
+	 		 << age.month << " maanden" << endl << endl;
 
 	if(!checkBirthday(birthDate))
 		return 0;
@@ -272,6 +272,8 @@ bool checkBirthday(Date birthDate) {
 		answer += secondSymbol;
 
 	}
+
+	cout << endl;
 
 	if (answer == calculateBirthday(birthDate)) {
 		cout << "De opgegeven geboortedag is juist." << endl;
